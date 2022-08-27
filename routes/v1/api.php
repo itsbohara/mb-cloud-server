@@ -9,9 +9,9 @@ $router->group(['prefix' => 'api', 'as' => 'movie'], function () use ($router) {
 
         $router->get('/all', ['as' => 'all', 'uses' => 'ApisController@all']);
 
-        $router->post('/new', ['as' => 'new bucket', 'uses' => 'ApisController@create']);
+        $router->post('/new', ['as' => 'new api', 'uses' => 'ApisController@create']);
 
-        // $router->post('/{id}/update', ['as' => 'update bucket', 'uses' => 'ApisController@update']);
+        // $router->post('/{id}/update', ['as' => 'update api', 'uses' => 'ApisController@update']);
 
         $router->delete('/{id}', ['as' => 'delete bucket', 'uses' => 'ApisController@delete']);
 
