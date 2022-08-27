@@ -38,7 +38,7 @@ class FileController extends Controller
 
     public function upload(Request $request)
     {
-        // !validate key & bucket first
+        // !validate key
         $bucket_id = $request->input('bucket_id');
         $api_id = $request->input('api');
 
@@ -48,8 +48,8 @@ class FileController extends Controller
             return $this->core->setResponse('error', 'Invalid API Key', null, false, 404);
         }
 
-        if (!$bucket = Bucket::find($bucket_id)) {
-            return $this->core->setResponse('error', 'Invalid Bucket', null, false, 404);
+        if (!$bucket = Bucket::find($api[0]->bucket_id)) {
+            return $this->core->setResponse('error', 'Bucket not available for provide API key.', null, false, 404);
         }
 
         /* validation requirement */
@@ -72,7 +72,7 @@ class FileController extends Controller
             'extension' => $extension,
             'path' => 'bucket/' . $bucket->slug,
             'user_id' => Auth::user()->id,
-            'bucket_id' => $bucket_id,
+            'bucket_id' => $api[0]->bucket_id,
         ];
         $newFile = File::create($input);
 
