@@ -8,6 +8,7 @@ use App\Models\File;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use stdClass;
 
 class FileController extends Controller
 {
@@ -74,7 +75,12 @@ class FileController extends Controller
             'user_id' => Auth::user()->id,
             'bucket_id' => $api[0]->bucket_id,
         ];
-        $newFile = File::create($input);
+        $uploadedFile = File::create($input);
+
+        $newFile = new stdClass();
+        $newFile->file = $uploadedFile;
+        //! use server url
+        $newFile->downloadURL = 'https://s1.itsbohara.com/bucket/' . $bucket->slug . '/' . $fileName;
 
         return $this->core->setResponse('success', 'File uploaded successfully', $newFile);
 
@@ -111,7 +117,7 @@ class FileController extends Controller
 
                 $validator = [
                     'file' => 'required|file',
-                    'api' => 'required|string'
+                    'api' => 'required|string',
                 ];
 
                 break;
