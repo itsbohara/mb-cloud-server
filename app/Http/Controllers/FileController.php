@@ -111,8 +111,7 @@ class FileController extends Controller
 
                 $validator = [
                     'file' => 'required|file',
-                    'api' => 'required|string',
-                    'bucket_id' => 'required|string',
+                    'api' => 'required|string'
                 ];
 
                 break;
