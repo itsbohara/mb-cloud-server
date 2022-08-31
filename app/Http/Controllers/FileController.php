@@ -34,7 +34,11 @@ class FileController extends Controller
         }
 
         $response = File::where('bucket_id', $bucket_id)->get();
-        return $this->core->setResponse('success', 'Got Specified Bucket Files', $response);
+        $bucketFiles = new stdClass();
+        $bucketFiles->files = $response;
+        $bucketFiles->bucket = $bucket;
+
+        return $this->core->setResponse('success', 'Got Specified Bucket Files', $bucketFiles);
     }
 
     public function upload(Request $request)
