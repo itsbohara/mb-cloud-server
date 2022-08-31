@@ -76,7 +76,8 @@ class FileController extends Controller
             'name' => $fileName,
             'extension' => $extension,
             'path' => 'bucket/' . $bucket->slug,
-            'user_id' => Auth::user()->id,
+            // 'user_id' => Auth::user()->id, //!
+            'user_id' => $api[0]->user_id,
             'bucket_id' => $api[0]->bucket_id,
         ];
         $uploadedFile = File::create($input);
