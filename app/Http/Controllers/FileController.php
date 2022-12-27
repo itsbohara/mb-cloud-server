@@ -44,7 +44,6 @@ class FileController extends Controller
     public function upload(Request $request)
     {
         // !validate key
-        $bucket_id = $request->input('bucket_id');
         $api_id = $request->input('api');
 
         $api = Api::where('key', $api_id)->get();
@@ -69,13 +68,22 @@ class FileController extends Controller
         $file_name = $file->getClientOriginalName();
         $fileName = uniqid() . '_' . $file_name;
         $extension = $file->getClientOriginalExtension();
-        $destination_path = './bucket/' . $bucket->slug . '/';
+
+        $_dir = '';
+        if($_dir = $request->input('dir')) $_dir = $_dir . '/';
+        $destination_path = './..'.env("APP_UPLOAD_ROOT"). $bucket->slug . '/' . $_dir;
+        // replace any multiple dir seperator before saving path to db
+        $destination_path = str_replace( "///", "/", $destination_path); 
+        $destination_path = str_replace( "//", "/", $destination_path); 
+        
         $file->move($destination_path, $fileName);
+
+        $_path = $bucket->slug . '/'.$_dir. $fileName;
 
         $input = [
             'name' => $fileName,
             'extension' => $extension,
-            'path' => 'bucket/' . $bucket->slug,
+            'path' => env("APP_UPLOAD_ROOT") . $_path ,
             // 'user_id' => Auth::user()->id, //!
             'user_id' => $api[0]->user_id,
             'bucket_id' => $api[0]->bucket_id,
@@ -84,8 +92,9 @@ class FileController extends Controller
 
         $newFile = new stdClass();
         $newFile->file = $uploadedFile;
+        
         //! use server url
-        $newFile->downloadURL = 'https://s1.itsbohara.com/bucket/' . $bucket->slug . '/' . $fileName;
+        $newFile->downloadURL = 'https://s1.itsbohara.com/' . $_path;
 
         return $this->core->setResponse('success', 'File uploaded successfully', $newFile);
 

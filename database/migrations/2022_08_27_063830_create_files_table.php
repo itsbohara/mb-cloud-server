@@ -15,7 +15,9 @@ class CreateFilesTable extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('name')->unique();
+            // $table->string('name')->unique();
+            // ToDO! istead of making name unique prompt before uploading file for multiple upload of same ?
+            $table->string('name');
             $table->string('path');
             $table->string('extension');
             $table->string('user_id');
