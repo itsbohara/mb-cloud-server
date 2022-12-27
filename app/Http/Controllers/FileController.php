@@ -43,13 +43,11 @@ class FileController extends Controller
 
     public function upload(Request $request)
     {
-        // !validate key
+        // !validate API key first
         $api_id = $request->input('api');
-
         $api = Api::where('key', $api_id)->get();
-
         if ($api->count() < 1) {
-            return $this->core->setResponse('error', 'Invalid API Key', null, false, 404);
+            return $this->core->setResponse('error', 'Invalid API Key', null, false, 401);
         }
 
         if (!$bucket = Bucket::find($api[0]->bucket_id)) {
@@ -142,6 +140,56 @@ class FileController extends Controller
         }
 
     }
+
+        // delete by ID or fileName using API
+    public function deleteAPI(Request $request)
+    {
+        // !validate API key first
+        $api_id = $request->input('api');
+        $api = Api::where('key', $api_id)->get();
+        if ($api->count() < 1) 
+            return $this->core->setResponse('error', 'Invalid API Key!', null, false, 401);        
+
+        $filname = $request->input("filename");
+        $_id = $request->input("_id");
+        $forceDelete = $request->input("force");
+        $usingID = false;
+
+        if($_id) {
+            $file = File::find($_id);
+            $usingID = true;
+        } else {
+            $file = File::where('name', $filname)->get();
+             if($file->count() > 0) $file = $file[0];
+        }
+        
+        if (!$file || $file->count() < 1) {
+            return $this->core->setResponse('error', 'File not found', null, false, 404);
+        }
+
+        $filePath = '..'. $file->path;
+        // Storage::delete($filePath);
+        
+        try {
+            if(!is_file($filePath) && !$forceDelete){
+                return $this->core->setResponse('error', "File doesn't exist!", null, false, 404);
+            }
+            
+            if(is_file($filePath)) unlink($filePath);
+            
+            if($forceDelete) {
+                $deleteFile = $file;
+                if(!$usingID) $deleteFile = File::find($file->id);
+                $deleteFile->delete();
+            }
+            
+            return $this->core->setResponse('success', 'File delete successfully');
+        } catch(Exception $e) {
+            return $this->core->setResponse('error', 'File delete error', null, false, 404);
+        }
+
+    }
+
 
     private function validation($type = null, $request)
     {

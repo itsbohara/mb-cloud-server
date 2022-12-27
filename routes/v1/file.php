@@ -3,8 +3,9 @@
 /* restrict route */
 $router->group(['prefix' => 'file', 'as' => 'file'], function () use ($router) {
 
-    // allow to uplaoad without authorization but proper API validation
+    // allow to upload/delete without authorization but proper API validation
     $router->post('/upload', ['as' => 'upload file', 'uses' => 'FileController@upload']);
+    $router->delete('/_delete', ['as' => 'delete file using API', 'uses' => 'FileController@deleteAPI']);
 
 /* restrict route */
     $router->group(['middleware' => 'auth'], function () use ($router) {
