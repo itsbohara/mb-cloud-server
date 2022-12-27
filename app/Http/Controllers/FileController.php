@@ -100,24 +100,45 @@ class FileController extends Controller
 
     }
 
+    // delete by ID or fileName
     public function delete(Request $request)
     {
-        $filname = $request->input('filname');
-        $file = File::where('name', $filname)->get();
-        if ($file->count() < 1) {
+        $filname = $request->input("filename");
+        $_id = $request->input("_id");
+        $forceDelete = $request->input("force");
+        $usingID = false;
+
+        if($_id) {
+            $file = File::find($_id);
+            $usingID = true;
+        } else {
+            $file = File::where('name', $filname)->get();
+             if($file->count() > 0) $file = $file[0];
+        }
+        
+        if (!$file || $file->count() < 1) {
             return $this->core->setResponse('error', 'File not found', null, false, 404);
         }
 
-        $filePath = $file[0]->path . '/' . $file[0]->name;
+        $filePath = '..'. $file->path;
         // Storage::delete($filePath);
-
-        if (!unlink($filePath)) {
-            return $this->core->setResponse('error', 'File delete error', null, false, 404);
-        } else {
-            $deleteFile = File::find($file[0]->id);
-            $deleteFile->delete();
-
+        
+        try {
+            if(!is_file($filePath) && !$forceDelete){
+                return $this->core->setResponse('error', "File doesn't exist!", null, false, 404);
+            }
+            
+            if(is_file($filePath)) unlink($filePath);
+            
+            if($forceDelete) {
+                $deleteFile = $file;
+                if(!$usingID) $deleteFile = File::find($file->id);
+                $deleteFile->delete();
+            }
+            
             return $this->core->setResponse('success', 'File delete successfully');
+        } catch(Exception $e) {
+            return $this->core->setResponse('error', 'File delete error', null, false, 404);
         }
 
     }
